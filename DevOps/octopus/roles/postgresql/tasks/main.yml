@@ -1,0 +1,94 @@
+---
+- name: Ensure APT keyrings directory exists
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Download PostgreSQL GPG key (.asc format)
+  get_url:
+    url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+    dest: /tmp/postgresql.asc
+    mode: '0644'
+
+- name: Convert PostgreSQL key to binary format (.gpg)
+  command: gpg --dearmor -o /etc/apt/keyrings/postgresql.gpg /tmp/postgresql.asc
+  args:
+    creates: /etc/apt/keyrings/postgresql.gpg
+
+- name: Add PostgreSQL APT repository (with signed-by)
+  apt_repository:
+    repo: deb [signed-by=/etc/apt/keyrings/postgresql.gpg] http://apt.postgresql.org/pub/repos/apt bookworm-pgdg main
+    state: present
+    filename: pgdg
+
+- name: Update APT cache
+  apt:
+    update_cache: yes
+
+- name: Install PostgreSQL 16
+  apt:
+    name: postgresql-16
+    state: present
+
+- name: Ensure PostgreSQL listens on all interfaces (listen_addresses = '*')
+  lineinfile:
+    path: /etc/postgresql/16/main/postgresql.conf
+    regexp: '^#?listen_addresses\s*='
+    line: "listen_addresses = '*'"
+  notify: Restart PostgreSQL
+
+- name: Copy pg_hba.conf
+  copy:
+    src: pg_hba.conf
+    dest: /etc/postgresql/16/main/pg_hba.conf
+    owner: postgres
+    group: postgres
+    mode: '0644'
+  notify: Restart PostgreSQL
+
+- name: Ensure PostgreSQL is started and enabled
+  systemd:
+    name: postgresql
+    enabled: true
+    state: started
+
+- name: Install psycopg2 (required for Ansible PostgreSQL modules)
+  apt:
+    name: python3-psycopg2
+    state: present
+    update_cache: yes
+
+- name: Create database user paul
+  become_user: postgres
+  postgresql_user:
+    name: "{{ postgres_user }}"
+    password: "{{ postgres_password }}"
+    encrypted: yes
+    state: present
+
+- name: Create database named paul
+  become_user: postgres
+  postgresql_db:
+    name: "{{ postgres_db }}"
+    owner: "{{ postgres_user }}"
+    state: present
+
+- name: Check if schema is already imported
+  become_user: postgres
+  command: psql -d paul -c "\dt"
+  register: schema_check
+  failed_when: false
+
+- name: Import schema.sql into paul DB
+  become_user: postgres
+  postgresql_query:
+    db: paul
+    query: "{{ lookup('file', 'files/schema.sql') }}"
+  when: "'votes' not in schema_check.stdout"
+
+- name: Grant SELECT permission on 'votes' table to user 'paul'
+  become_user: postgres
+  postgresql_query:
+    db: paul
+    query: "{{ lookup('file', 'files/grant_votes.sql') }}"

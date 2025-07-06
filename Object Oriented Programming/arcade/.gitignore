@@ -1,0 +1,9 @@
+.cache
+.vscode
+compile_commands.json
+*.o
+arcade
+export.txt
+lib/*
+.clangd
+max_scores.txt

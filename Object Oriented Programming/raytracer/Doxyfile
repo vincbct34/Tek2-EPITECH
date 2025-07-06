@@ -1,0 +1,7 @@
+PROJECT_NAME           = RayTracer
+OUTPUT_DIRECTORY       = doc
+RECURSIVE              = YES
+INPUT                  = src
+FILE_PATTERNS          = *.hpp *.cpp
+GENERATE_LATEX         = YES
+EXTRACT_ALL            = YES

@@ -1,0 +1,75 @@
+---
+- name: Create /opt/worker directory
+  file:
+    path: /opt/worker
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'
+
+- name: Upload worker.tar archive
+  copy:
+    src: worker.tar
+    dest: /tmp/worker.tar
+    mode: '0644'
+
+- name: Extract worker.tar into /opt/worker
+  unarchive:
+    src: /tmp/worker.tar
+    dest: /opt/worker
+    remote_src: yes
+
+# === INSTALLATION DE JAVA 17 dans /tmp/ ===
+
+- name: Install Java 17
+  apt:
+    name: default-jdk
+    state: present
+    update_cache: yes
+
+- name: Set JAVA_HOME globally
+  lineinfile:
+    path: /etc/environment
+    regexp: '^JAVA_HOME='
+    line: JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64
+    create: yes
+
+- name: Register Java 17 as default
+  alternatives:
+    name: java
+    path: /usr/lib/jvm/java-17-openjdk-arm64/bin/java
+    link: /usr/bin/java
+
+- name: Reload environment variables
+  shell: source /etc/environment
+  args:
+    executable: /bin/bash
+
+# === MAVEN + BUILD ===
+- name: Install Maven
+  apt:
+    name: maven
+    state: present
+    update_cache: yes
+
+- name: Build Java project using Maven
+  command: mvn package
+  args:
+    chdir: /opt/worker/worker
+  environment:
+    JAVA_HOME: "/usr/lib/jvm/java-17-openjdk-arm64"
+    PATH: "/usr/lib/jvm/java-17-openjdk-arm64/bin:{{ ansible_env.PATH }}"
+
+# === SYSTEMD SERVICE ===
+- name: Copy worker systemd service
+  copy:
+    src: worker.service
+    dest: /etc/systemd/system/worker.service
+    mode: '0644'
+  notify: Restart worker service
+
+- name: Enable and start worker service
+  systemd:
+    name: worker
+    enabled: true
+    state: started

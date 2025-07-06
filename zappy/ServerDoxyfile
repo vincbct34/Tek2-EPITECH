@@ -1,0 +1,7 @@
+PROJECT_NAME           = Zappy - Server
+OUTPUT_DIRECTORY       = doc/server/
+RECURSIVE              = YES
+INPUT                  = server
+FILE_PATTERNS          = *.h *.c
+GENERATE_LATEX         = YES
+EXTRACT_ALL            = YES

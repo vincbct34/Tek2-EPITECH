@@ -1,0 +1,8 @@
+env:
+  redis_host: redis-1
+  redis_port: 6379
+  postgres_host: postgresql-1
+  postgres_port: 5432
+  postgres_user: paul
+  postgres_password: democracyIsFragile
+  postgres_db: paul

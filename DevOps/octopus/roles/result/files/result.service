@@ -1,0 +1,20 @@
+[Unit]
+Description=Result Node.js web service
+After=network.target
+
+[Service]
+WorkingDirectory=/opt/result/result
+ExecStart=/usr/bin/node server.js
+Restart=always
+
+Environment=POSTGRES_USER=paul
+Environment=POSTGRES_PASSWORD=democracyIsFragile
+Environment=POSTGRES_HOST=10.37.129.3
+Environment=POSTGRES_PORT=5432
+Environment=POSTGRES_DB=paul
+
+Environment=REDIS_HOST=192.168.64.4
+Environment=REDIS_PORT=6379
+
+[Install]
+WantedBy=multi-user.target

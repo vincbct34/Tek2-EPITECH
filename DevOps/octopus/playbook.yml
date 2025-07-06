@@ -1,0 +1,36 @@
+---
+- name: Apply base configuration to all servers
+  hosts: all
+  become: true
+  roles:
+    - base
+
+- name: Setup Redis
+  hosts: redis
+  become: true
+  roles:
+    - redis
+
+- name: Setup PostgreSQL
+  hosts: postgresql
+  become: true
+  roles:
+    - postgresql
+
+- name: Deploy Poll
+  hosts: poll
+  become: true
+  roles:
+    - poll
+
+- name: Deploy Worker
+  hosts: worker
+  become: true
+  roles:
+    - worker
+
+- name: Deploy Result
+  hosts: result
+  become: true
+  roles:
+    - result

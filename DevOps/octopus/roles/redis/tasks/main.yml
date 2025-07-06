@@ -1,0 +1,25 @@
+---
+- name: Install Redis server
+  apt:
+    name: redis-server
+    state: present
+    update_cache: yes
+
+- name: Copy redis.conf to /etc/redis/redis.conf
+  copy:
+    src: redis.conf
+    dest: /etc/redis/redis.conf
+    owner: redis
+    group: redis
+    mode: '0644'
+  notify: Restart Redis
+
+- name: Enable Redis to start on boot
+  systemd:
+    name: redis-server
+    enabled: yes
+
+- name: Ensure Redis is running
+  systemd:
+    name: redis-server
+    state: started

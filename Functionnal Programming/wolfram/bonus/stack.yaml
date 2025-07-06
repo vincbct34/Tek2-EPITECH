@@ -1,0 +1,8 @@
+# A 'specific' Stackage snapshot or a compiler version.
+# A snapshot resolver dictates the compiler version and the set of packages
+resolver: lts-23.3
+
+# User packages to be built.
+# Various formats can be used as shown in the example below.
+packages:
+- .

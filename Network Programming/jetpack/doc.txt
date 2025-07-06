@@ -1,0 +1,336 @@
+
+
+
+
+Network Working Group                                          V. Bichat
+Internet-Draft                                          Jetpack Dev Team
+Intended status: Informational                                April 2025
+Expires: Never
+
+
+                 Jetpack Joyride Protocol Specification
+                         draft-jetpack-protocol
+
+Abstract
+
+   This document describes the Jetpack Joyride multiplayer game
+   protocol.
+
+Status of This Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at https://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on 3 October 2025.
+
+Copyright Notice
+
+   Copyright (c) 2025 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents (https://trustee.ietf.org/
+   license-info) in effect on the date of publication of this document.
+   Please review these documents carefully, as they describe your rights
+   and restrictions with respect to this document.  Code Components
+   extracted from this document must include Revised BSD License text as
+   described in Section 4.e of the Trust Legal Provisions and are
+   provided without warranty as described in the Revised BSD License.
+
+
+
+
+
+
+
+Bichat                   Expires 22 October 2025                [Page 1]
+
+Internet-Draft   Jetpack Joyride Protocol Specification       April 2025
+
+
+Table of Contents
+
+   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
+   2.  Protocol Overview . . . . . . . . . . . . . . . . . . . . . .   2
+   3.  Message Format  . . . . . . . . . . . . . . . . . . . . . . .   3
+     3.1.  Format Specification  . . . . . . . . . . . . . . . . . .   3
+   4.  Connection Establishment  . . . . . . . . . . . . . . . . . .   3
+   5.  Game States . . . . . . . . . . . . . . . . . . . . . . . . .   3
+   6.  Message Types . . . . . . . . . . . . . . . . . . . . . . . .   3
+     6.1.  Server to Client Messages . . . . . . . . . . . . . . . .   3
+     6.2.  Client to Server Messages . . . . . . . . . . . . . . . .   5
+   7.  Game Mechanics  . . . . . . . . . . . . . . . . . . . . . . .   5
+   8.  Error Handling  . . . . . . . . . . . . . . . . . . . . . . .   5
+   9.  Implementation Considerations . . . . . . . . . . . . . . . .   6
+   10. References  . . . . . . . . . . . . . . . . . . . . . . . . .   6
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   6
+
+1.  Introduction
+
+   Jetpack Joyride is a TCP-based protocol for synchronizing client
+   positions in a real-time arcade-style game.
+
+   The game consists of players controlling jetpack-equipped characters
+   navigating through a map containing coins to collect and obstacles
+   (zappers) to avoid.
+
+2.  Protocol Overview
+
+   The Jetpack Joyride Protocol is a simple text-based protocol that
+   operates over TCP/IP.  All communication between the client and
+   server uses the packet format described in this document.
+
+   The protocol supports the following features:
+
+   *  Client identification and connection
+
+   *  Player position updates
+
+   *  Game state synchronization
+
+   *  Map distribution
+
+   *  Player readiness signaling
+
+   *  Disconnection handling
+
+
+
+
+
+
+Bichat                   Expires 22 October 2025                [Page 2]
+
+Internet-Draft   Jetpack Joyride Protocol Specification       April 2025
+
+
+3.  Message Format
+
+   All packets are of the form: TYPE:arg1:arg2 and are newline
+   terminated.  Example: MOVE:123.45:456.78
+
+3.1.  Format Specification
+
+   Type:  A string identifier indicating the message type
+
+   Arguments:  Zero or more arguments separated by colons
+
+   Termination:  All messages are terminated with a newline character
+      (\n)
+
+   All numeric values are transmitted as strings and must be parsed
+   accordingly.  Floating point values use the period (.) as the decimal
+   separator.
+
+4.  Connection Establishment
+
+   The client connects to the server via TCP/IP using the specified IP
+   address and port.  Upon successful connection, the server assigns a
+   unique ID to the client and sends the map data.
+
+   The server maintains sessions for all connected clients and
+   broadcasts relevant state changes to all clients.
+
+5.  Game States
+
+   The game can be in one of the following states:
+
+   LOBBY:  Players are connecting and indicating readiness
+
+   GAME:  Active gameplay is in progress
+
+   END:  Game has concluded
+
+   The game transitions from LOBBY to GAME when all connected players
+   (minimum 2) have indicated readiness.
+
+6.  Message Types
+
+6.1.  Server to Client Messages
+
+   ID:clientId  Sent to a client upon connection to assign a unique
+      identifier.
+
+         clientId: Integer identifier for the client
+
+
+
+Bichat                   Expires 22 October 2025                [Page 3]
+
+Internet-Draft   Jetpack Joyride Protocol Specification       April 2025
+
+
+      Example: ID:42
+
+   MAP:row1:row2:...  Transmits the game map to the client.
+
+         row1, row2, etc.: Strings representing rows of the map
+
+      Characters in the map:
+
+         'c': Coin (collectible)
+
+         'e': Zapper (obstacle)
+
+         ' ': Empty space
+
+      Example: MAP: c : e :
+
+   POS:id:x:y  Updates the position of a player.
+
+         id: Player identifier
+
+         x: X coordinate (float)
+
+         y: Y coordinate (float)
+
+      Example: POS:42:123.45:456.78
+
+   NB_PLAYER_READY:count  Reports the number of players who are ready.
+
+         count: Number of ready players
+
+      Example: NB_PLAYER_READY:3
+
+   NB_PLAYER:count  Reports the total number of connected players.
+
+         count: Total number of players
+
+      Example: NB_PLAYER:5
+
+   GAME_STATE:state  Indicates the current game state.
+
+         state: One of "LOBBY", "GAME", or "END"
+
+      Example: GAME_STATE:GAME
+
+   DEATH:id  Notifies the client that their player has died.
+
+         id: Player identifier
+
+
+
+
+Bichat                   Expires 22 October 2025                [Page 4]
+
+Internet-Draft   Jetpack Joyride Protocol Specification       April 2025
+
+
+      Example: DEATH:42
+
+6.2.  Client to Server Messages
+
+   MOVE:x:y  Sent by the client to update its position.
+
+         x: X coordinate (float)
+
+         y: Y coordinate (float)
+
+      Example: MOVE:123.45:456.78
+
+   READY  Indicates that the client is ready to start the game.
+      Example: READY
+
+   QUIT  Notifies the server that the client is disconnecting.  Example:
+      QUIT
+
+   ENTITY_HIT:id:type  Sent by the client to notify the server of an
+      entity collision.
+
+         id: Player identifier
+
+         type: Entity type ('c' for coin, 'e' for zapper)
+
+      Example: ENTITY_HIT:42:c
+
+7.  Game Mechanics
+
+   The game follows these basic mechanics:
+
+   1.  Players use jetpacks to navigate vertically, with gravity
+       constantly pulling downward
+
+   2.  The map scrolls horizontally at a constant speed
+
+   3.  Players collect coins to increase their score
+
+   4.  Players must avoid zappers (obstacles)
+
+   5.  Colliding with a zapper marks a player as no longer alive
+
+   6.  The game concludes when 2 or fewer players remain alive
+
+8.  Error Handling
+
+   The protocol does not define specific error messages.  Instead,
+   implementations should handle the following error conditions:
+
+
+
+Bichat                   Expires 22 October 2025                [Page 5]
+
+Internet-Draft   Jetpack Joyride Protocol Specification       April 2025
+
+
+   *  Invalid packet format: Ignore the packet and optionally log an
+      error
+
+   *  Unknown message type: Ignore the message and optionally log an
+      error
+
+   *  Client disconnection: Remove the client and their player from the
+      game
+
+   *  Server disconnection: Client should attempt to gracefully handle
+      the disconnection
+
+9.  Implementation Considerations
+
+   Implementations should consider the following:
+
+   *  Buffer overflow prevention: Limit the size of received packets
+
+   *  Rate limiting: Prevent clients from flooding the server with
+      messages
+
+   *  Timeouts: Detect and handle unresponsive clients
+
+   *  String parsing: Carefully parse messages to avoid injection
+      attacks
+
+   *  Game state synchronization: Handle late-joining clients
+      appropriately
+
+10.  References
+
+   [RFC7322]  IETF, "RFC Style Guide", 2014,
+              <https://datatracker.ietf.org/doc/html/rfc7322>.
+
+Author's Address
+
+   Vincent Bichat
+   Jetpack Dev Team
+   Email: vincent@example.com
+
+
+
+
+
+
+
+
+
+
+
+
+Bichat                   Expires 22 October 2025                [Page 6]

@@ -1,0 +1,63 @@
+---
+- name: Create /opt/result directory
+  file:
+    path: /opt/result
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'
+
+- name: Upload result.tar archive
+  copy:
+    src: result.tar
+    dest: /tmp/result.tar
+    mode: '0644'
+
+- name: Extract result.tar into /opt/result
+  unarchive:
+    src: /tmp/result.tar
+    dest: /opt/result
+    remote_src: yes
+
+- name: Install Node.js and npm
+  apt:
+    name: [nodejs, npm]
+    state: present
+    update_cache: yes
+
+- name: Install node dependencies
+  npm:
+    path: /opt/result/result
+    production: yes
+
+- name: Copy Node systemd service
+  copy:
+    src: result.service
+    dest: /etc/systemd/system/result.service
+    mode: '0644'
+  notify: Restart result service
+
+- name: Enable and start result Node service
+  systemd:
+    name: result
+    enabled: true
+    state: started
+
+- name: Check if result.service already exists
+  stat:
+    path: /etc/systemd/system/result.service
+  register: result_service_stat
+
+- name: Copy result systemd service
+  template:
+    src: result.service.j2
+    dest: /etc/systemd/system/result.service
+    mode: '0644'
+  notify: Restart result service
+  when: not result_service_stat.stat.exists
+
+- name: Enable and start result service
+  systemd:
+    name: result
+    enabled: true
+    state: started

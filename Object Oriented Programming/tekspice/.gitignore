@@ -1,0 +1,6 @@
+.vscode
+a.out
+*.o
+compile_commands.json
+nanotekspice
+.cache

@@ -1,0 +1,20 @@
+[Unit]
+Description=Worker Java service
+After=network.target user.slice
+
+[Service]
+WorkingDirectory=/opt/worker/worker
+ExecStart=/usr/bin/java -jar /opt/worker/worker/target/worker-jar-with-dependencies.jar
+Environment=REDIS_HOST=192.168.64.11
+
+Environment=POSTGRES_USER=paul
+Environment=POSTGRES_PASSWORD=democracyIsFragile
+Environment=POSTGRES_HOST=10.37.129.3
+Environment=POSTGRES_PORT=5432
+Environment=POSTGRES_DB=paul
+
+Restart=always
+StartLimitIntervalSec=0
+
+[Install]
+WantedBy=multi-user.target

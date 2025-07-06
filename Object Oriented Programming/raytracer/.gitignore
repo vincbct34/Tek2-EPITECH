@@ -1,0 +1,7 @@
+.vscode
+*.o
+raytracer
+output.ppm
+plugins/*
+compile_commands.json
+.cache

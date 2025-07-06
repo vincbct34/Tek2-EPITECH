@@ -1,0 +1,13 @@
+[Unit]
+Description=Poll Flask web service
+After=network.target
+
+[Service]
+WorkingDirectory=/opt/poll/poll
+Environment=REDIS_HOST={{ hostvars['redis-1'].ansible_host }}
+Environment=REDIS_PORT=6379
+ExecStart=/opt/poll/poll/venv/bin/python app.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

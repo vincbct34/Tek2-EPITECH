@@ -1,0 +1,20 @@
+
+[redis]
+redis-1 ansible_host=192.168.64.5
+
+[postgresql]
+postgresql-1 ansible_host=
+
+[poll]
+poll-1 ansible_host=
+
+[result]
+result-1 ansible_host=
+
+[worker]
+worker-1 ansible_host=
+
+[all:vars]
+ansible_user=debian
+ansible_ssh_private_key_file=~/.ssh/id_bs_octopus
+ansible_python_interpreter=/usr/bin/python3

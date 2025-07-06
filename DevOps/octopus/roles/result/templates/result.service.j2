@@ -1,0 +1,22 @@
+[Unit]
+Description=Result Node.js web service
+After=network.target
+
+[Service]
+WorkingDirectory=/opt/result/result
+ExecStart=/usr/bin/node server.js
+Restart=always
+
+# PostgreSQL
+Environment=POSTGRES_USER={{ postgres_user }}
+Environment=POSTGRES_PASSWORD={{ postgres_password }}
+Environment=POSTGRES_DB={{ postgres_db }}
+Environment=POSTGRES_HOST={{ hostvars['postgresql-1'].ansible_host }}
+Environment=POSTGRES_PORT=5432
+
+# Redis
+Environment=REDIS_HOST={{ hostvars['redis-1'].ansible_host }}
+Environment=REDIS_PORT=6379
+
+[Install]
+WantedBy=multi-user.target

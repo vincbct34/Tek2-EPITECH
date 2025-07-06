@@ -1,0 +1,129 @@
+ZAPPY - GUI PROTOCOL
+CLIENT / SERVER COMMUNICATION PROTOCOLE
+
+ZAPPY - GUI PROTOCOL
+Symbol
+
+Meaning
+
+Symbol
+
+Meaning
+
+X
+Y
+q0
+q1
+q2
+q3
+q4
+q5
+q6
+
+width or horizontal position
+height or vertical position
+resource 0 (food) quantity
+resource 1 (linemate) quantity
+resource 2 (deraumere) quantity
+resource 3 (sibur) quantity
+resource 4 (mendiane) quantity
+resource 5 (phiras) quantity
+resource 6 (thystame) quantity
+
+n
+O
+L
+e
+T
+N
+R
+M
+i
+
+player number
+orientation: 1(N), 2(E), 3(S), 4(W)
+player or incantation level
+egg number
+time unit
+name of the team
+incantation result
+message
+resource number
+
+Server
+
+Client
+
+Details
+
+msz X Y\n
+bct X Y q0 q1 q2 q3 q4 q5 q6\n
+bct X Y q0 q1 q2 q3 q4 q5 q6\n * nbr_tiles
+tna N\n * nbr_teams
+pnw #n X Y O L N\n
+ppo #n X Y O\n
+plv #n L\n
+pin #n X Y q0 q1 q2 q3 q4 q5 q6\n
+pex #n\n
+pbc #n M\n
+pic X Y L #n #n . . . \n
+
+msz\n
+bct X Y\n
+mct\n
+tna\n
+
+map size
+content of a tile
+content of the map (all the tiles)
+name of all the teams
+connection of a new player
+player’s position
+player’s level
+player’s inventory
+expulsion
+broadcast
+start of an incantation (by the first
+player)
+end of an incantation
+egg laying by the player
+resource dropping
+resource collecting
+death of a player
+an egg was laid by a player
+player connection for an egg
+death of an egg
+time unit request
+time unit modification
+end of game
+message from the server
+unknown command
+command parameter
+
+pie X Y R\n
+pfk #n\n
+pdr #n i\n
+pgt #n i\n
+pdi #n\n
+enw #e #n X Y\n
+ebo #e\n
+edi #e\n
+sgt T\n
+sst T\n
+seg N\n
+smg M\n
+suc\n
+sbp\n
+
+ppo #n\n
+plv #n\n
+pin #n\n
+
+sgt\n
+sst T\n
+
+1
+
+v 3.3
+
+

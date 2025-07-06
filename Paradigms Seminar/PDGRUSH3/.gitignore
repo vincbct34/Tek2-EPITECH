@@ -1,0 +1,4 @@
+.vscode
+MyGKrellm
+*.o
+src/*.o

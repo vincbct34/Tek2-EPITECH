@@ -1,0 +1,9 @@
+.vscode/
+.stack-work/
+*~
+*.cabal
+output.*
+mypandoc
+node_modules
+package-lock.json
+.next

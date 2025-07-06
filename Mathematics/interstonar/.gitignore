@@ -1,0 +1,7 @@
+.vscode/
+compile_commands.json
+interstonar
+*.o
+.cache/
+__pycache__/
+*.log
